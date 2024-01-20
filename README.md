@@ -1,6 +1,5 @@
 # 2auth
 
-[![Apache-2.0 License](https://img.shields.io/github/license/pompomdev/2auth)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub Repo](https://img.shields.io/badge/Github-2auth-blue)](https://github.com/pompomdev/2auth)
 
 2auth is a software that provides two-factor authentication using One-Time Passwords (OTP). It allows users to save their authentication entries and generate OTP codes.
