@@ -1,7 +1,10 @@
+# Added the remove system and made error messages more specific.
+
 import pyotp
 import time
 import pickle
 import os
+
 
 def save_entries():
     name = input("Name: ")
@@ -25,6 +28,37 @@ def save_entries():
     else:
         print("Please fill in all fields correctly.")
 
+
+def remove_entry():
+    if os.path.exists('data/entries.2auth'):
+        with open('data/entries.2auth', 'rb') as file:
+            saved_entries = pickle.load(file)
+
+        if saved_entries:
+            print("\nExisting Entries:")
+            print("-----------------")
+            for entry in saved_entries:
+                print(entry)
+            print("-----------------\n")
+        else:
+            print("\nNo entries found.\n")
+            return
+
+        entry_to_remove = input("Enter the name of the entry you want to remove: ")
+
+        if entry_to_remove in saved_entries:
+            del saved_entries[entry_to_remove]
+
+            with open('data/entries.2auth', 'wb') as file:
+                pickle.dump(saved_entries, file)
+
+            print(f"\nEntry \"{entry_to_remove}\" has been removed successfully.\n")
+        else:
+            print(f"\nEntry \"{entry_to_remove}\" not found.\n")
+    else:
+        print("\nNo saved entries found.\n")
+
+
 def generate_codes():
     if os.path.exists('data/entries.2auth'):
         with open('data/entries.2auth', 'rb') as file:
@@ -38,6 +72,7 @@ def generate_codes():
             print("-----------------\n")
         else:
             print("\nNo entries found.\n")
+            return
 
         entries = input("Enter the names of the entries separated by commas (e.g., entry1,entry2): ")
         entries = entries.split(',')
@@ -61,8 +96,12 @@ def generate_codes():
                 print("---------------------")
                 while True:
                     for entry, otp in otps.items():
-                        code = otp.now()
-                        print(f"The OTP code for \"{entry}\" is: {code}")
+                        try:
+                            code = otp.now()
+                            print(f"The OTP code for \"{entry}\" is: {code}")
+                        except pyotp.pyotp.ExpiredToken:
+                            print(f"The OTP code for \"{entry}\" has expired.")
+                
                     print("---------------------")
                     time.sleep(30)
             else:
@@ -74,27 +113,33 @@ def generate_codes():
     else:
         print("\nNo saved entries found.\n")
 
+
 def print_menu():
     print("2Auth Safer")
     print("-----------")
     print("1. Save Entries")
     print("2. Generate OTP Codes")
-    print("3. Exit")
+    print("3. Remove Entry")
+    print("4. Exit")
+
 
 def main():
     while True:
         print_menu()
-        choice = input("Enter your choice (1-3): ")
+        choice = input("Enter your choice (1-4): ")
 
         if choice == "1":
             save_entries()
         elif choice == "2":
             generate_codes()
         elif choice == "3":
+            remove_entry()
+        elif choice == "4":
             print("Exiting...")
             break
         else:
             print("Invalid choice. Please try again.")
+
 
 if __name__ == "__main__":
     main()
